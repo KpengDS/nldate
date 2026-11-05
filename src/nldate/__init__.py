@@ -145,6 +145,8 @@ def _parse(text: str, reference: date) -> date:
         )
     if match := re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", text):
         return date(int(match[1]), int(match[2]), int(match[3]))
+    if match := re.fullmatch(r"(\d{4})/(\d{1,2})/(\d{1,2})", text):
+        return date(int(match[1]), int(match[2]), int(match[3]))
     if match := re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", text):
         return date(int(match[3]), int(match[1]), int(match[2]))
 
@@ -164,7 +166,9 @@ def _parse(text: str, reference: date) -> date:
 def parse(s: str, today: date | None = None) -> date:
     """Parse an English date relative to ``today`` (default: the local date).
 
-    Numeric slash dates use month/day/year. Next/last weekdays are strictly
+    Numeric slash dates accept year/month/day and month/day/year, with a
+    four-digit year and one- or two-digit months and days.
+    Next/last weekdays are strictly
     future/past; this weekday belongs to the current Monday–Sunday week.
     Month/year offsets clamp to the last valid day of the destination month,
     then apply week/day offsets. Invalid or out-of-range dates raise ValueError.
