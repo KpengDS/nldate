@@ -144,6 +144,13 @@ def _parse(text: str, reference: date) -> date:
         return _shift(reference, _duration(match[1]), 1)
     if match := re.fullmatch(r"(.+) (ago|later|hence)", text):
         return _shift(reference, _duration(match[1]), -1 if match[2] == "ago" else 1)
+    # "The day" is an implicit one-day offset, not a written quantity.
+    if match := re.fullmatch(r"the day (before|after) (.+)", text):
+        return _shift(
+            _parse(match[2], reference),
+            {"day": 1},
+            -1 if match[1] == "before" else 1,
+        )
     if match := re.fullmatch(r"(.+?) (before|after|from) (.+)", text):
         return _shift(
             _parse(match[3], reference),
