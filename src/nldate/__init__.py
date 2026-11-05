@@ -92,7 +92,7 @@ def _number(text: str) -> int:
 
 def _duration(text: str) -> dict[str, int]:
     amounts: dict[str, int] = {}
-    pattern = r"(.+?)\s+(days?|weeks?|months?|years?)(?=\s|$)"
+    pattern = r"(.+?)\s+(days?|weeks?|months?|years?)(?=[\s,]|$)"
     position = 0
     for match in re.finditer(pattern, text):
         if match.start() != position:
@@ -142,8 +142,8 @@ def _parse(text: str, reference: date) -> date:
 
     if match := re.fullmatch(r"in (.+)", text):
         return _shift(reference, _duration(match[1]), 1)
-    if match := re.fullmatch(r"(.+) ago", text):
-        return _shift(reference, _duration(match[1]), -1)
+    if match := re.fullmatch(r"(.+) (ago|later|hence)", text):
+        return _shift(reference, _duration(match[1]), -1 if match[2] == "ago" else 1)
     if match := re.fullmatch(r"(.+?) (before|after|from) (.+)", text):
         return _shift(
             _parse(match[3], reference),
