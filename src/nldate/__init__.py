@@ -11,6 +11,13 @@ _MONTHS = {
     for index, name in enumerate(names)
     if name
 }
+_MONTHS.update(
+    {
+        f"{name.lower()}.": index
+        for index, name in enumerate(calendar.month_abbr)
+        if name
+    }
+)
 _SMALL = dict(
     zip(
         [
@@ -152,9 +159,9 @@ def _parse(text: str, reference: date) -> date:
 
     # English month names are explicit, so parsing is independent of OS locale.
     cleaned = re.sub(r"(?<=\d)(st|nd|rd|th)\b", "", text).replace(",", "")
-    if match := re.fullmatch(r"([a-z]+) (\d{1,2})(?: (\d{4}))?", cleaned):
+    if match := re.fullmatch(r"([a-z]+\.?) (\d{1,2})(?: (\d{4}))?", cleaned):
         month, day, year = match.groups()
-    elif match := re.fullmatch(r"(\d{1,2}) ([a-z]+)(?: (\d{4}))?", cleaned):
+    elif match := re.fullmatch(r"(\d{1,2}) ([a-z]+\.?)(?: (\d{4}))?", cleaned):
         day, month, year = match.groups()
     else:
         raise ValueError("Unrecognized expression")
@@ -168,6 +175,7 @@ def parse(s: str, today: date | None = None) -> date:
 
     Numeric slash dates accept year/month/day and month/day/year, with a
     four-digit year and one- or two-digit months and days.
+    Abbreviated month names accept an optional trailing period.
     Next/last weekdays are strictly
     future/past; this weekday belongs to the current Monday–Sunday week.
     Month/year offsets clamp to the last valid day of the destination month,
